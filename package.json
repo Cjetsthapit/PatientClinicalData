@@ -1,0 +1,14 @@
+{
+  "name": "patientclinicalapi",
+  "version": "1.0.0",
+  "description": "API for patient data",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Srijeet Sthapit",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
