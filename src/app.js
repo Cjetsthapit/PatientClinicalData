@@ -8,7 +8,7 @@
 
   const mongoose = require("mongoose");
   const express = require("express");
-  const verify = require("./router/auth");
+  const {verifyToken} = require("./router/auth");
   const userRouter = require("./router/userRouter");
   const patientRouter = require("./router/patientRouter");
 
@@ -27,7 +27,7 @@
     .catch((err) => console.log(err));
 
   app.use("/users", userRouter);
-  app.use("/patients", verify, patientRouter);
+  app.use("/patients", verifyToken, patientRouter);
 
   // Listen on port 3000
   app.listen(3000, () => {

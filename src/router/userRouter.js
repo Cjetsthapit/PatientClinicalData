@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
 const router = express.Router();
-
+const {verifyToken, tokenBlacklist} = require("./auth");
 router.post("/register", async (req, res) => {
   const { firstName, lastName, address, email, phoneNumber, password } =
     req.body;
@@ -41,6 +41,14 @@ router.post("/login", async (req, res) => {
 
   const token = jwt.sign({ _id: user._id }, "mySuperSecretKey");
   res.header("auth-token", token).send(token);
+});
+
+router.post("/logout", verifyToken, (req, res) => {
+  // Add the token to the blacklist
+  const token = req.header("auth-token");
+  tokenBlacklist.push(token);
+
+  res.status(200).send("Logout successful");
 });
 
 module.exports = router;
