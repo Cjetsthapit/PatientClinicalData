@@ -118,7 +118,7 @@ router.put('/:id/records/:recordId', async (req, res) => {
       const record = patient.patientRecords.id(req.params.recordId);
       if (!record) return res.status(404).send({ message: 'Record not found' });
 
-      Object.assign(patientRecords, req.body);  // Update record fields
+      record.set(req.body);  // Update record fields
       await patient.save();
       res.status(200).send(record);
   } catch (error) {
@@ -129,19 +129,26 @@ router.put('/:id/records/:recordId', async (req, res) => {
 //delete a specific record of a patient:
 router.delete('/:id/records/:recordId', async (req, res) => {
   try {
-      const patient = await Patient.findById(req.params.id);
-      if (!patient) return res.status(404).send({ message: 'Patient not found' });
+    const patient = await Patient.findById(req.params.id);
+    if (!patient) return res.status(404).send({ message: 'Patient not found' });
 
-      const record = patient.patientRecords.id(req.params.recordId);
-      if (!record) return res.status(404).send({ message: 'Record not found' });
+    const recordIndex = patient.patientRecords.findIndex(
+      (record) => record._id.toString() === req.params.recordId
+    );
 
-      record.remove();  // Remove the record
-      await patient.save();
-      res.status(200).send({ message: 'Record deleted', record });
+    if (recordIndex === -1) {
+      return res.status(404).send({ message: 'Record not found' });
+    }
+
+    patient.patientRecords.splice(recordIndex, 1); // Remove the record
+    await patient.save();
+    res.status(200).send({ message: 'Record deleted' });
   } catch (error) {
-      res.status(500).send(error);
+    console.error(error);
+    res.status(500).send(error);
   }
 });
+
 
 // Get a specific record for a patient
 router.get('/:id/records/:recordId', async (req, res) => {
