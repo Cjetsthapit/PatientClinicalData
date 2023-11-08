@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
-  
+
   // Get a specific patient by ID
 router.get('/:id', async (req, res) => {
     try {
@@ -84,23 +84,11 @@ router.delete('/:id', async (req, res) => {
   function checkCriticalStatus(vitals) {
     const { bloodOxygenLevel, bloodPressure, heartbeatRate, respiratoryRate } = vitals;
   
-    // Define the safe ranges
-    const safeRanges = {
-      bloodOxygenLevel: { min: 95, max: 100 },
-      bloodPressure: { min: 90, max: 120 }, // Assuming this is systolic blood pressure
-      heartbeatRate: { min: 60, max: 100 },
-      respiratoryRate: { min: 12, max: 20 },
-    };
-  
-    // Check if any vital sign is out of range
     const isCritical = 
-      bloodOxygenLevel < safeRanges.bloodOxygenLevel.min ||
-      bloodPressure < safeRanges.bloodPressure.min || 
-      bloodPressure > safeRanges.bloodPressure.max ||
-      heartbeatRate < safeRanges.heartbeatRate.min || 
-      heartbeatRate > safeRanges.heartbeatRate.max ||
-      respiratoryRate < safeRanges.respiratoryRate.min || 
-      respiratoryRate > safeRanges.respiratoryRate.max;
+    bloodOxygenLevel < 95 || bloodOxygenLevel > 100 ||
+    bloodPressure < 90 || bloodPressure > 120 ||
+    heartbeatRate < 60 || heartbeatRate > 100 ||
+    respiratoryRate < 12 || respiratoryRate > 20;
   
     return isCritical;
   }
@@ -112,8 +100,9 @@ router.post('/:id/records', async (req, res) => {
       const patient = await Patient.findById(req.params.id);
       if (!patient) return res.status(404).send({ message: 'Patient not found' });
 
-      const isCriticalStatus = checkCriticalStatus(req.body);
-      const newRecord = { ...req.body, isCritical: isCriticalStatus };
+      const isCriticalStatus = checkCriticalStatus(req.body)
+      patient.isCritical = isCriticalStatus
+      const newRecord = { ...req.body};
       patient.patientRecords.push(newRecord);  // Add new record
       await patient.save();
       res.status(201).send(patient.patientRecords[patient.patientRecords.length - 1]);  // Send the latest record
