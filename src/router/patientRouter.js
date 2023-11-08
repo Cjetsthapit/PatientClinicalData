@@ -169,6 +169,16 @@ router.get('/:id/records/:recordId', async (req, res) => {
   }
 });
 
+router.get("/critical", async (req, res) => {
+  try {
+    const criticalPatients = await Patient.find({ isCritical: true });
+    res.json(criticalPatients);
+  } catch (error) {
+    console.error("Error retrieving critical patients:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 module.exports = router;
