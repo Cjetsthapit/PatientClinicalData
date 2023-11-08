@@ -33,14 +33,32 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email: email });
-  if (!user) return res.status(400).send("Email is not found");
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user) return res.status(400).json({ error: "Email is not found" });
 
-  const validPass = await bcrypt.compare(password, user.password);
-  if (!validPass) return res.status(400).send("Password is incorrect");
+    const validPass = await bcrypt.compare(password, user.password);
+    if (!validPass) return res.status(400).json({ error: "Password is incorrect" });
 
-  const token = jwt.sign({ _id: user._id }, "mySuperSecretKey");
-  res.header("auth-token", token).send(token);
+    const token = jwt.sign({ _id: user._id }, "mySuperSecretKey");
+
+    // Create an object containing the token and user details
+    const responseObj = {
+      token: token,
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        // Add other user details you want to include here
+      }
+    };
+
+    // Send the object as JSON in the response
+    res.status(200).send(responseObj);
+  } catch (error) {
+    console.error("Login error:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.post("/logout", verifyToken, (req, res) => {

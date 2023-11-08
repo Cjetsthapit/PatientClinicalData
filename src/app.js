@@ -8,13 +8,16 @@
 
   const mongoose = require("mongoose");
   const express = require("express");
+  const cors = require("cors");
   const {verifyToken} = require("./router/auth");
   const userRouter = require("./router/userRouter");
   const patientRouter = require("./router/patientRouter");
+  
 
   let uriString = `mongodb+srv://${username}:${password}@patientsdata.vrs9kh1.mongodb.net/?retryWrites=true&w=majority`;
 
   const app = express();
+  app.use(cors());
   app.use(express.json());
 
   // Connect to MongoDB Atlas
