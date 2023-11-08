@@ -45,12 +45,7 @@ router.post("/login", async (req, res) => {
     // Create an object containing the token and user details
     const responseObj = {
       token: token,
-      user: {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        // Add other user details you want to include here
-      }
+      user: user
     };
 
     // Send the object as JSON in the response
