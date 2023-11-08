@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Patient = require('../models/patientModel');
 
+
 // Create a new patient
 router.post('/', async (req, res) => {
     const patient = new Patient(req.body);
@@ -28,6 +29,17 @@ router.get('/', async (req, res) => {
     }
   });
 
+
+  router.get('/critical', async (req, res) => {
+    try {
+      const criticalPatients = await Patient.find({ isCritical: true });
+      res.status(200).send(criticalPatients);
+    } catch (error) {
+      console.error("Error retrieving critical patients:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+  
   // Get a specific patient by ID
 router.get('/:id', async (req, res) => {
     try {
@@ -40,6 +52,8 @@ router.get('/:id', async (req, res) => {
       res.status(500).send(error);
     }
   });
+
+
 
   // Update a specific patient by ID
 router.put('/:id', async (req, res) => {
@@ -169,15 +183,7 @@ router.get('/:id/records/:recordId', async (req, res) => {
   }
 });
 
-router.get("/critical", async (req, res) => {
-  try {
-    const criticalPatients = await Patient.find({ isCritical: true });
-    res.json(criticalPatients);
-  } catch (error) {
-    console.error("Error retrieving critical patients:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
+
 
 
 
