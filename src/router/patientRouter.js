@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
     try {
       let query = {};
       if (req.query.name) {
-        query.name = query.name = new RegExp('^' + req.query.name, 'i');;
+        query.name = new RegExp( req.query.name, 'i');
       }
       const patients = await Patient.find(query);
       res.status(200).send(patients);
@@ -32,13 +32,24 @@ router.get('/', async (req, res) => {
 
   router.get('/critical', async (req, res) => {
     try {
-      const criticalPatients = await Patient.find({ isCritical: true });
+      const name = req.query.name;
+  
+      let filter = { isCritical: true };
+  
+      if (name) {
+        filter.name = new RegExp(name, 'i');
+      }
+
+  
+      const criticalPatients = await Patient.find(filter);
+  
       res.status(200).send(criticalPatients);
     } catch (error) {
       console.error("Error retrieving critical patients:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
+  
 
   // Get a specific patient by ID
 router.get('/:id', async (req, res) => {
@@ -46,6 +57,10 @@ router.get('/:id', async (req, res) => {
       const patient = await Patient.findById(req.params.id);
       if (!patient) {
         return res.status(404).send({ message: 'Patient not found' });
+      }
+      if (patient.patientRecords && Array.isArray(patient.patientRecords)) {
+        // Sorting the records in descending order by recordedDate
+        patient.patientRecords.sort((a, b) => new Date(b.recordDate) - new Date(a .recordDate));
       }
       res.status(200).send(patient);
     } catch (error) {
@@ -62,6 +77,7 @@ router.put('/:id', async (req, res) => {
       if (!patient) {
         return res.status(404).send({ message: 'Patient not found' });
       }
+      console.log(patient);
       res.status(200).send(patient);
     } catch (error) {
       res.status(400).send(error);
