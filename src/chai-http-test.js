@@ -1,3 +1,4 @@
+const { faker } = require("@faker-js/faker");
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const { response, json } = require("express");
@@ -17,12 +18,12 @@ describe("User API Tests", function () {
           firstName: "John",
           lastName: "Doe",
           address: "123 Main St",
-          email: "john.doe@example.com",
+          email: faker.internet.email(),
           phoneNumber: "1234567890",
           password: "password123",
         })
         .end(function (err, res) {
-          expect(res.status).to.equal(500);
+          expect(res.status).to.equal(201);
           // expect(res.text).to.equal("User registered successfully");
           done();
         });
@@ -84,13 +85,14 @@ describe("User API Tests", function () {
       // Perform a login first to get the token
       chai
         .request(app)
-        .post("users/login")
+        .post("/users/login")
         .send({
           email: "john.doe@example.com",
           password: "password123",
         })
         .end(function (err, responseBody) {
-          const token = JSON.parse(responseBody).token;
+          const token = responseBody.body.token;
+          console.log(token);
 
           // Use the obtained token for the logout request
           chai
@@ -108,7 +110,7 @@ describe("User API Tests", function () {
     it("should return HTTP 401 for logout without a valid token", function (done) {
       chai
         .request(app)
-        .post("users/logout")
+        .post("/users/logout")
         .end(function (err, res) {
           expect(res.status).to.equal(401);
           done();
