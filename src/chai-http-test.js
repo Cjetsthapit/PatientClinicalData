@@ -24,7 +24,7 @@ describe("User API Tests", function () {
         })
         .end(function (err, res) {
           expect(res.status).to.equal(201);
-          // expect(res.text).to.equal("User registered successfully");
+          expect(res.text).to.equal("User registered successfully");
           done();
         });
     });
